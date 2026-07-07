@@ -1,0 +1,363 @@
+## FIGMA MAKE PROMPT – GHANA SHS SCHOOL DIRECTORY
+
+Design a premium **School Directory** section for the **Aneres Everything High School (AES)** website that contains **every officially recognized Senior High School in Ghana**. The School Directory should help students and parents easily explore schools, compare them, and select one during the prospectus purchasing process.
+
+**Do not hardcode the schools into the design.** Instead, design the UI to load schools dynamically from a database that the admin can update annually with the latest Ghana Education Service (GES) school list.
+
+---
+
+# School Directory Landing Page
+
+Create a modern, visually appealing page with a hero banner.
+
+### Hero Title
+
+**Explore Senior High Schools Across Ghana**
+
+### Subtitle
+
+*"Find the right Senior High School based on region, category, gender, boarding status, and more."*
+
+Include a large search bar with placeholder text:
+
+> Search by school name...
+
+---
+
+# Search & Filter Panel
+
+Design an advanced filter section that allows users to quickly narrow down schools.
+
+### Search Filters
+
+* Search by School Name
+* Region
+* District/Municipality
+* School Category (A, B, C)
+* School Type
+
+  * Public
+  * Private
+* Gender
+
+  * Boys
+  * Girls
+  * Mixed
+* Accommodation
+
+  * Boarding
+  * Day
+  * Both
+* Programme Offered
+
+  * General Science
+  * General Arts
+  * Business
+  * Visual Arts
+  * Home Economics
+  * Technical
+  * Agriculture
+  * TVET
+  * STEM
+* School Status
+
+  * Available for Selection
+  * Full
+* Alphabetical Sorting
+* Popular Schools
+* Recently Added
+
+---
+
+# School Cards
+
+Display schools in a responsive card grid.
+
+Each school card should include:
+
+* School Logo (if available)
+* School Image
+* School Name
+* Region
+* District
+* Category
+* Boys / Girls / Mixed badge
+* Boarding / Day badge
+* Programmes Offered
+* Short Description
+* "View Details" button
+* "Select This School" button
+
+Add visual badges such as:
+
+* STEM School
+* Top Performing
+* Technical School
+* TVET
+* Sports Excellence
+* Newly Added
+
+---
+
+# School Detail Page
+
+Each school should have its own dedicated page.
+
+Include:
+
+### Header
+
+* School Name
+* Large Cover Photo
+* School Crest/Logo
+* Region
+* District
+
+---
+
+### About the School
+
+* History
+* Mission
+* Vision
+* Academic Focus
+
+---
+
+### School Information
+
+* Category
+* Gender
+* Boarding Availability
+* Day Availability
+* Student Population
+* Year Established
+* School Motto
+* Contact Information
+* Website (if available)
+
+---
+
+### Programmes Offered
+
+Display each programme as modern cards.
+
+Examples:
+
+* General Science
+* General Arts
+* Business
+* Home Economics
+* Technical
+* Agriculture
+* Visual Arts
+* TVET
+* STEM
+
+---
+
+### Facilities
+
+Display icons for:
+
+* Science Laboratory
+* ICT Laboratory
+* Library
+* Dormitories
+* Sports Facilities
+* Dining Hall
+* Assembly Hall
+* Clinic
+* Chapel/Mosque
+
+---
+
+### Gallery
+
+Image gallery showcasing:
+
+* Campus
+* Classrooms
+* Dormitories
+* Laboratories
+* Sports Facilities
+
+---
+
+### Location
+
+Google Maps placeholder.
+
+Directions.
+
+Nearby landmarks.
+
+---
+
+### Admission Requirements
+
+Display admission information dynamically.
+
+---
+
+### Select This School
+
+Large CTA button.
+
+When clicked, the user proceeds to the prospectus purchase flow with this school already selected.
+
+---
+
+# Compare Schools
+
+Allow users to compare multiple schools.
+
+Comparison table should include:
+
+* Category
+* Region
+* Gender
+* Boarding
+* Day
+* Programmes
+* Facilities
+* Performance
+* Student Population
+
+---
+
+# Favourite Schools
+
+Allow users to:
+
+❤️ Save schools to favourites.
+
+Users can compare favourites later.
+
+---
+
+# Recommended Schools
+
+Based on:
+
+* Selected Region
+* Programme Interest
+* Gender
+* Boarding Preference
+
+Display AI recommendation placeholders.
+
+---
+
+# School Selection Flow
+
+When purchasing a prospectus:
+
+Step 1
+
+Choose Region
+
+↓
+
+Step 2
+
+Choose School
+
+↓
+
+Step 3
+
+Choose Gender
+
+↓
+
+Step 4
+
+Choose Boarding or Day
+
+↓
+
+Step 5
+
+Enter
+
+* Full Name
+* Phone Number
+* Email Address
+
+↓
+
+Step 6
+
+Choose Payment Option
+
+* Pay Now
+* Pay Small Small (Installment)
+
+↓
+
+Step 7
+
+Proceed to Checkout
+
+---
+
+# Admin Dashboard Requirements
+
+Design a School Management module where administrators can:
+
+* Add new schools
+* Edit school details
+* Delete schools
+* Upload school logos
+* Upload school images
+* Assign regions
+* Assign districts
+* Assign categories
+* Assign programmes
+* Assign boarding/day status
+* Upload admission information
+* Update school availability annually
+* Import schools in bulk from Excel/CSV
+* Export school database
+* Enable/disable schools for the current admission year
+* Feature selected schools on the homepage
+
+---
+
+# Database Structure (For Developers)
+
+Each school record should include:
+
+* School ID
+* School Name
+* School Code
+* Region
+* District
+* Category
+* School Type
+* Gender
+* Boarding Status
+* Programmes Offered
+* Description
+* History
+* Motto
+* Year Established
+* Student Population
+* Facilities
+* Contact Information
+* Website
+* GPS Address
+* Google Maps Coordinates
+* School Logo
+* Cover Image
+* Gallery Images
+* Admission Status
+* Featured Status
+* Last Updated
+
+---
+
+# User Experience Goal
+
+The School Directory should become the most comprehensive and user-friendly SHS database in Ghana. Parents and students should be able to discover schools, compare options, understand what each school offers, and seamlessly continue to purchasing a prospectus or admission package. The design should feel premium, informative, and easy to navigate while supporting future updates as new schools are added or existing information changes.
