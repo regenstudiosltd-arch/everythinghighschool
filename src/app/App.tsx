@@ -4047,7 +4047,16 @@ function AdminSidebar({ section, setSection, onLogout, onExit, open, setOpen }: 
 // ── Admin Top Bar ─────────────────────────────────────────────────────────────
 
 function AdminTopBar({ section, onToggleSidebar }: { section: AdminSection; onToggleSidebar: () => void }) {
+  const { profile } = useAuth();
   const item = ADMIN_NAV.find(n => n.id === section);
+  const adminName = profile?.full_name || profile?.email || "Admin";
+  const adminRole = profile?.role === "staff" ? "Staff" : "Administrator";
+  const adminInitials = adminName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "AD";
   return (
     <div className="h-14 bg-white border-b border-border flex items-center justify-between px-5 sticky top-0 z-20">
       <div className="flex items-center gap-3">
@@ -4064,10 +4073,10 @@ function AdminTopBar({ section, onToggleSidebar }: { section: AdminSection; onTo
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
         </button>
         <div className="flex items-center gap-2 pl-2 border-l border-border">
-          <div className="w-8 h-8 rounded-full bg-[#1D4ED8] text-white text-xs font-bold flex items-center justify-center">AD</div>
+          <div className="w-8 h-8 rounded-full bg-[#1D4ED8] text-white text-xs font-bold flex items-center justify-center">{adminInitials}</div>
           <div className="hidden sm:block">
-            <div className="text-xs font-semibold text-[#0F172A]">Admin</div>
-            <div className="text-[10px] text-[#64748B]">Super Admin</div>
+            <div className="text-xs font-semibold text-[#0F172A]">{adminName}</div>
+            <div className="text-[10px] text-[#64748B]">{adminRole}</div>
           </div>
         </div>
       </div>
@@ -4165,10 +4174,6 @@ function AdminLogin({ onExit }: { onExit: () => void }) {
           <button onClick={onExit} className="text-sm text-[#64748B] hover:text-[#0F172A] transition-colors flex items-center gap-1.5 mx-auto">
             <ArrowRight className="w-3.5 h-3.5 rotate-180" /> Back to Website
           </button>
-        </div>
-
-        <div className="mt-6 p-3 bg-[#F8FAFC] rounded-xl text-center">
-          <p className="text-[10px] text-[#94A3B8]">Demo: any valid email + password logs you in</p>
         </div>
       </div>
     </div>
