@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
+import { AuthPage } from "@/app/components/auth/AuthPage";
 import firstDayPhoto from "@/imports/first_day_at_school.jpg";
 import aehLogo from "@/imports/AEH_LOGO.jpeg";
 import chopBoxImg from "@/imports/chop_box.jpg";
@@ -18,8 +19,9 @@ import {
   Upload, FileText, ChevronRight, Lock, AlertCircle, ToggleLeft,
   ToggleRight, UserCheck, PackageCheck,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
-type Page = "home" | "prospectus" | "tvet" | "shop" | "packages" | "vouchers" | "schools" | "dashboard" | "news" | "admin";
+type Page = "home" | "prospectus" | "tvet" | "shop" | "packages" | "vouchers" | "schools" | "dashboard" | "news" | "admin" | "login" | "register";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,21 @@ type School = {
   established: number; population: number; motto: string;
   image: string; facilities: string[]; featured: boolean;
 };
+
+const APP_PAGES: Page[] = ["home", "prospectus", "tvet", "shop", "packages", "vouchers", "schools", "dashboard", "news", "admin", "login", "register"];
+
+const isPage = (value: string): value is Page => APP_PAGES.includes(value as Page);
+
+const getPageFromHash = (): Page => {
+  const hashPage = window.location.hash.replace(/^#/, "").trim();
+  return isPage(hashPage) ? hashPage : "home";
+};
+
+const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
+
+const isValidPhone = (value: string) => /^[+\d\s()-]{7,}$/.test(value);
+
+const isValidExamYear = (value: string) => /^\d{4}$/.test(value);
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -664,7 +681,7 @@ function Navbar({ page, setPage, cartCount }: { page: Page; setPage: (p: Page) =
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && <span className="absolute top-1 right-1 w-4 h-4 bg-[#F59E0B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{cartCount}</span>}
             </button>
-            <button onClick={() => go("dashboard")} className="hidden sm:flex items-center gap-1.5 ml-1 px-3.5 py-2 bg-[#1D4ED8] text-white rounded-xl text-sm font-medium hover:bg-[#1E40AF] transition-colors">
+            <button onClick={() => go("login")} className="hidden sm:flex items-center gap-1.5 ml-1 px-3.5 py-2 bg-[#1D4ED8] text-white rounded-xl text-sm font-medium hover:bg-[#1E40AF] transition-colors">
               <User className="w-4 h-4" /> Login
             </button>
             <button className="lg:hidden p-2 text-[#475569] rounded-lg" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -680,7 +697,7 @@ function Navbar({ page, setPage, cartCount }: { page: Page; setPage: (p: Page) =
                 {link.label}
               </button>
             ))}
-            <button onClick={() => go("dashboard")} className="w-full mt-2 py-2.5 bg-[#1D4ED8] text-white rounded-xl text-sm font-semibold">Login / Register</button>
+            <button onClick={() => go("login")} className="w-full mt-2 py-2.5 bg-[#1D4ED8] text-white rounded-xl text-sm font-semibold">Login / Register</button>
           </div>
         )}
       </div>
@@ -2268,6 +2285,36 @@ function VouchersPage() {
   const [selected, setSelected] = useState<typeof VOUCHERS[0] | null>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", school: "", year: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const resetVoucherFlow = () => {
+    setSelected(null);
+    setSubmitted(false);
+    setError("");
+    setForm({ name: "", email: "", phone: "", school: "", year: "" });
+  };
+
+  const submitVoucher = () => {
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.school.trim() || !form.year.trim()) {
+      setError("Please complete all student information fields.");
+      return;
+    }
+    if (!isValidEmail(form.email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!isValidPhone(form.phone.trim())) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
+    if (!isValidExamYear(form.year.trim())) {
+      setError("Please enter a valid 4-digit exam year.");
+      return;
+    }
+
+    setError("");
+    setSubmitted(true);
+  };
 
   if (submitted && selected) {
     return (
@@ -2277,7 +2324,7 @@ function VouchersPage() {
           <h2 className="text-xl font-bold text-[#0F172A] mb-2">Payment Successful!</h2>
           <p className="text-[#64748B] text-sm mb-1">Your {selected.name} voucher has been sent to</p>
           <p className="font-semibold text-[#1D4ED8] text-sm mb-6">{form.email || "your email"}</p>
-          <button onClick={() => { setSelected(null); setSubmitted(false); setForm({ name: "", email: "", phone: "", school: "", year: "" }); }} className="w-full py-3 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:bg-[#1E40AF] transition-colors">Buy Another Voucher</button>
+          <button onClick={resetVoucherFlow} className="w-full py-3 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:bg-[#1E40AF] transition-colors">Buy Another Voucher</button>
         </div>
       </div>
     );
@@ -2287,7 +2334,7 @@ function VouchersPage() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] pt-16">
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-8">
-          <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-[#64748B] hover:text-[#0F172A] mb-6 text-sm font-medium transition-colors"><ChevronLeft className="w-4 h-4" /> Back to Vouchers</button>
+          <button onClick={() => { setSelected(null); setError(""); }} className="flex items-center gap-2 text-[#64748B] hover:text-[#0F172A] mb-6 text-sm font-medium transition-colors"><ChevronLeft className="w-4 h-4" /> Back to Vouchers</button>
           <div className={`bg-gradient-to-br ${voucherGradients[selected.color]} rounded-2xl p-6 text-white mb-6 shadow-lg`}>
             <div className="text-4xl mb-3">{selected.icon}</div>
             <h2 className="text-xl font-bold mb-1">{selected.fullName}</h2>
@@ -2300,11 +2347,20 @@ function VouchersPage() {
               {[{ key: "name", label: "Full Name", placeholder: "Enter your full name" }, { key: "email", label: "Email Address", placeholder: "your@email.com" }, { key: "phone", label: "Phone Number", placeholder: "+233 XX XXX XXXX" }, { key: "school", label: "School / Institution", placeholder: "Your school name" }, { key: "year", label: "Exam Year", placeholder: "2025" }].map(field => (
                 <div key={field.key}>
                   <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">{field.label}</label>
-                  <input type="text" placeholder={field.placeholder} value={form[field.key as keyof typeof form]} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))} className="w-full px-4 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 transition-all" />
+                  <input type="text" placeholder={field.placeholder} value={form[field.key as keyof typeof form]} onChange={e => {
+                    setForm(f => ({ ...f, [field.key]: e.target.value }));
+                    if (error) setError("");
+                  }} className="w-full px-4 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 transition-all" />
                 </div>
               ))}
             </div>
-            <button onClick={() => setSubmitted(true)} className="w-full mt-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-bold hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2">
+            {error && (
+              <div className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+            <button onClick={submitVoucher} className="w-full mt-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-bold hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2">
               <CreditCard className="w-4 h-4" /> Pay {selected.currency} {selected.price} — Get Voucher
             </button>
           </div>
@@ -2693,6 +2749,22 @@ function SchoolsPage() {
 // ── Dashboard Page ────────────────────────────────────────────────────────────
 
 function DashboardPage() {
+  const { profile, user, loading, signOut, actionLoading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] pt-16 flex items-center justify-center px-4">
+        <div className="rounded-3xl border border-border bg-white px-6 py-5 text-sm font-semibold text-[#64748B] shadow-lg">
+          Loading your dashboard...
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage defaultMode="login" onSuccess={() => {}} onBack={() => {}} />;
+  }
+
   const stats = [
     { label: "Active Orders", value: "2", icon: Package, bg: "bg-blue-50", fg: "text-blue-600" },
     { label: "Remaining Balance", value: "GHS 340", icon: Wallet, bg: "bg-amber-50", fg: "text-amber-600" },
@@ -2714,12 +2786,25 @@ function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="bg-gradient-to-r from-[#1D4ED8] to-[#1E40AF] rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl">
           <div className="flex items-start justify-between">
-            <div><p className="text-white/65 text-sm mb-1">Welcome back,</p><h1 className="text-2xl sm:text-3xl font-bold mb-1">Adwoa Mensah 👋</h1><p className="text-white/65 text-sm">Your SHS preparation is 65% complete</p></div>
+            <div>
+              <p className="text-white/65 text-sm mb-1">Welcome back,</p>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1">{profile?.full_name || user.email || "Customer"} 👋</h1>
+              <p className="text-white/65 text-sm">Your SHS preparation is 65% complete</p>
+            </div>
             <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-xl font-bold flex-shrink-0">AM</div>
           </div>
           <div className="mt-5">
             <div className="flex justify-between text-xs text-white/65 mb-1.5"><span>Preparation Progress</span><span>65%</span></div>
             <div className="h-2.5 bg-white/20 rounded-full overflow-hidden"><div className="h-full bg-[#F59E0B] rounded-full w-[65%]" /></div>
+          </div>
+          <div className="mt-5 flex items-center gap-3">
+            <div className="rounded-2xl bg-white/10 px-4 py-3 text-sm">
+              <div className="text-white/60 text-xs mb-1">Signed in as</div>
+              <div className="font-semibold">{profile?.email || user.email}</div>
+            </div>
+            <button onClick={signOut} disabled={actionLoading} className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-70">
+              {actionLoading ? "Signing out..." : "Logout"}
+            </button>
           </div>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -3992,24 +4077,40 @@ function AdminTopBar({ section, onToggleSidebar }: { section: AdminSection; onTo
 
 // ── Admin Login ───────────────────────────────────────────────────────────────
 
-function AdminLogin({ onLogin, onExit }: { onLogin: () => void; onExit: () => void }) {
+function AdminLogin({ onExit }: { onExit: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { signIn, signOut, profile, session } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email || !password) { setError("Please enter your email and password."); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
+    const signedInProfile = await signIn(email, password);
     setLoading(false);
-    if (email === "wrong@test.com") { setError("Invalid email or password. Please try again."); return; }
-    onLogin();
+
+    if (!signedInProfile) {
+      setError("Invalid email or password. Please try again.");
+      return;
+    }
+
+    if (signedInProfile.role !== "admin" && signedInProfile.role !== "staff") {
+      setError("This account does not have admin access.");
+      await signOut();
+      return;
+    }
   };
+
+  useEffect(() => {
+    if (session && profile && (profile.role === "admin" || profile.role === "staff")) {
+      setEmail(profile.email || email);
+    }
+  }, [email, profile, session]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A1F5E] to-[#1D4ED8] flex items-center justify-center p-4">
@@ -4077,11 +4178,23 @@ function AdminLogin({ onLogin, onExit }: { onLogin: () => void; onExit: () => vo
 // ── AdminPortal root ──────────────────────────────────────────────────────────
 
 function AdminPortal({ onExit }: { onExit: () => void }) {
-  const [authed, setAuthed] = useState(false);
   const [section, setSection] = useState<AdminSection>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { session, profile, loading, signOut } = useAuth();
 
-  if (!authed) return <AdminLogin onLogin={() => setAuthed(true)} onExit={onExit} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F1F5F9] flex items-center justify-center p-4">
+        <div className="rounded-3xl border border-border bg-white px-6 py-5 text-sm font-semibold text-[#64748B] shadow-lg">
+          Checking admin session...
+        </div>
+      </div>
+    );
+  }
+
+  if (!session || !profile || (profile.role !== "admin" && profile.role !== "staff")) {
+    return <AdminLogin onExit={onExit} />;
+  }
 
   const renderSection = () => {
     switch (section) {
@@ -4109,7 +4222,7 @@ function AdminPortal({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="min-h-screen bg-[#F1F5F9] flex">
-      <AdminSidebar section={section} setSection={setSection} onLogout={() => setAuthed(false)} onExit={onExit} open={sidebarOpen} setOpen={setSidebarOpen} />
+      <AdminSidebar section={section} setSection={setSection} onLogout={signOut} onExit={onExit} open={sidebarOpen} setOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col min-h-screen lg:ml-56">
         <AdminTopBar section={section} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 p-5 overflow-y-auto">
@@ -4123,15 +4236,31 @@ function AdminPortal({ onExit }: { onExit: () => void }) {
 // ── App Root ──────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [page, setPage] = useState<Page>("home");
+  const { session, loading } = useAuth();
+  const [page, setPage] = useState<Page>(() => getPageFromHash());
   const [cartCount] = useState(0);
-  useEffect(() => { if (page !== "admin") window.scrollTo({ top: 0, behavior: "smooth" }); }, [page]);
+  useEffect(() => {
+    const syncPageFromHash = () => setPage(getPageFromHash());
+    window.addEventListener("hashchange", syncPageFromHash);
+    return () => window.removeEventListener("hashchange", syncPageFromHash);
+  }, []);
+
+  useEffect(() => {
+    const nextHash = page === "home" ? "" : `#${page}`;
+    if (window.location.hash !== nextHash) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${nextHash}`);
+    }
+    if (page !== "admin") window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   if (page === "admin") return <AdminPortal onExit={() => setPage("home")} />;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar page={page} setPage={setPage} cartCount={cartCount} />
+      {page === "login" && <AuthPage defaultMode="login" onBack={() => setPage("home")} onSuccess={() => setPage("dashboard")} />}
+      {page === "register" && <AuthPage defaultMode="register" onBack={() => setPage("home")} onSuccess={() => setPage("dashboard")} />}
+      {page === "dashboard" && !loading && !session && <AuthPage defaultMode="login" onBack={() => setPage("home")} onSuccess={() => setPage("dashboard")} />}
       {page === "home" && <HomePage setPage={setPage} />}
       {page === "prospectus" && <ProspectusPage />}
       {page === "tvet" && <TVETPage />}
@@ -4139,7 +4268,7 @@ export default function App() {
       {page === "packages" && <PackagesPage />}
       {page === "vouchers" && <VouchersPage />}
       {page === "schools" && <SchoolsPage />}
-      {page === "dashboard" && <DashboardPage />}
+      {page === "dashboard" && session && <DashboardPage />}
       {page === "news" && <NewsPage />}
     </div>
 
